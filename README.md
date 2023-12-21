@@ -111,8 +111,11 @@ Feel free to reach out if you have any questions, suggestions, or feedback relat
 
 ## References
 [1]: UBIAI annotation tool: [UBIAI](https://app.ubiai.tools/Projects).
+
 [2]: Named Entity Recognition, Vijay Krishnan and Vignesh Ganapathy: [NER](http://cs229.stanford.edu/proj2005/KrishnanGanapathy-NamedEntityRecognition.pdf) 
+
 [3]: LayoutLM: Pre-training of Text and Layout for Document Image Understanding: [LayoutLM] (https://arxiv.org/abs/1912.13318)
+
 [4]: [Huggingface LayoutLM] (https://huggingface.co/docs/transformers/model_doc/layoutlm)
 
 
