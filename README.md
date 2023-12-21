@@ -53,64 +53,55 @@ streamlit run app.py
 The data used consists of SBB train tickets for single and extension tickets. The training set consists of just 4 SBB train tickets. All tickets are in PDF form.
 
 ## Workflow
-0. Prepare training data by annotation using the UBIAI tool [1]. This includes drawing bounding boxes and labeling in the BIOES tagging form.
+0. Prepare training data by annotation using the UBIAI tool [1]. This includes drawing bounding boxes and labeling in the BIOES tagging form [2].
 1. Importing data
 2. Observing data
 3. Loading data in appropriate form.
-4. Training different models and comparing metrics.
-5. Running predictions on the model
-6. Running Grad CAM insights on the final attention layer
+4. Fine-tuning LayoutML model.
+5. Preparing test set processing, including OCR of prediction documents using Pytesseract and getting the bounding box for all text in the test sample.
+6. Running predictions on the bounding boxes of Pytesseract.
+7. Update the database with relevant NER extracted from the model prediction on the annotated test sample.
 
 * notebooks/SBB_TrainTicketParser.ipynb contains the end-to-end code for Document parsing with database integration.
 * app.py contains the streamlit app code.
 
 ## Results
 
-For the first task of image classification, we tried Transfer learning using popular CNN models like VGG19, ResNet, and EfficientNet as well as Vision models as Vision Transformer. Using average recall of Benign and Malignant tumors, we found EfficientNet to be the best-performing one on the test set. The models were implemented in tf-keras with callbacks implemented for overtraining.
-The following table gives the gist of the performance.
+We fine-tuned using Facebook/Meta's LayoutLM (which utilizes BERT as the backbone and adds two new input embeddings: 2-D position embedding and image embedding) [3]. The model was imported from the Hugging Face library [4] with end-to-end code implemented in PyTorch. We leveraged the tokenizer provided by the library itself. For the test case, we perform the OCR using Pytesseract.
 
-| model           |   Precision_Normal |   Precision_Benign |   Precision_Malignant |   Recall_Normal |   Recall_Benign |   Recall_Malignant |   Recall_BM |
-|:----------------|-------------------:|-------------------:|----------------------:|----------------:|----------------:|-------------------:|------------:|
-| EfficientNetB7  |               0.72 |               0.86 |                  0.82 |            0.85 |            0.83 |               0.78 |        0.81 |
-| ResNet152V2     |               0.71 |               0.89 |                  0.86 |            0.89 |            0.88 |               0.73 |        0.8  |
-| VGG19           |               0.74 |               0.86 |                  0.62 |            0.93 |            0.73 |               0.73 |        0.73 |
-| EfficientNetV2S |               0.53 |               0.85 |                  0.69 |            0.89 |            0.69 |               0.66 |        0.68 |
-| ConvNeXtBase    |               0.7  |               0.84 |                  0.7  |            0.78 |            0.8  |               0.73 |        0.76 |
-| vit_b16         |               0.27 |               0.75 |                  0.45 |            0.81 |            0.07 |               0.73 |        0.4  |
+With just 4 SBB train tickets we can achieve an average F1 score of 0.81.   
 
-The web app gives the prediction using the EfficientNet model. Following is the demo for each of the three classes:
-![Image 1](https://github.com/krunalgedia/SBB_TrainTicketParser/blob/main/images_app/sample.gif) | ![Image 2](https://github.com/krunalgedia/SBB_TrainTicketParser/blob/main/images_app/test.gif)
+| Epoch | Average Precision | Average Recall | Average F1 | Average Accuracy |
+|--------:|------------:|---------:|-----:|-----------:|
+|     145 |        0.89 |     0.77 | 0.82 |       0.9  |
+|     146 |        0.9  |     0.79 | 0.84 |       0.9  |
+|     147 |        0.86 |     0.77 | 0.81 |       0.89 |
+|     148 |        0.87 |     0.78 | 0.82 |       0.9  |
+|     149 |        0.86 |     0.77 | 0.81 |       0.89 |
+
+The web application serves demo:
+![Image 1](https://github.com/krunalgedia/SBB_TrainTicketParser/blob/main/images_app/sample.gif) | ![Image 2](https://github.com/krunalgedia/SBB_TrainTicketParser/blob/main/images_app/test1.gif)
 --- | --- 
 Opening page | Testing ... 
 
+Once the user uploads the image, the document gets parsed and the information from the document gets updated in the relational database which can be used to verify the traveler's info and also to automate the travel cost-processing task.
 
-For the second task of image semantic segmentation, we fine-tuned the pre-trained models used in the medical literature like UNet, ResUNet, ResUNet with Attention. Using dice score and Intersection over Union (IoU) as a metric, all the models were found to be performing similarly. We finally decided to go with ResUNet with Attention since it provided negligible gains in metrics over the other two models. The models were implemented in tf-keras.
-
-The web app gives the segmentation prediction using the EfficientNet model. Following is the demo for each of the three classes:
-![Image 1](https://github.com/krunalgedia/BreastTumourClassificationAndSegmentationWithGradCAM/blob/main/images_app/benign.gif) | ![Image 2](https://github.com/krunalgedia/BreastTumourClassificationAndSegmentationWithGradCAM/blob/main/images_app/malignant.gif) | ![Image 3](https://github.com/krunalgedia/BreastTumourClassificationAndSegmentationWithGradCAM/blob/main/images_app/normal.gif)
---- | --- | ---
-Benign Scan | Malignant Scan | Normal Scan
-
-For the third task, we used Grad-CAM which uses Class Activation Map along with gradient information to give insights into the model. The final heatmap is overlaid on the input image as shown in the web app for both classification and segmentation predictions.
-
-<img src="https://github.com/krunalgedia/BreastTumourClassificationAndSegmentationWithGradCAM/blob/main/images_app/difficult.gif" alt="Image" width="400"/> Such Grad-CAM heatmaps can help greatly in giving insights to the user about the model's focus in decision-making. This can help in cases like the one shown on the left side where the segmentation prediction is not the best. However, looking at the GradCAM heatmap shows the areas the model focussed on and we see the focus included the region of the tumor but the model. Thus, even though the model fails here, such insights can help the doctor to detect the probable areas of the tumor.
 
 ## More ideas
 
-For the classification model, maybe cross combination or concatenating transformer vision model with CNN models could work even better since transformer models are known to capture the global picture while CNN models look more at the local picture. 
+Instead of using OCR from the UBIAI tool, it best is to use pyteserract or same OCR tool for train and test set. Further, with Document AI being developed at a rapid pace, it would be worthwhile to test newer multimodal models which hopefully either provide a new solution for not using OCR or inbuilt OCR since it is important to be consistent in preprocessing train and test set for best results.
 
-For the segmentation model, maybe stacking of models could be tried.
+Also, train on at least >50 tickets, since this was just a small test case to see how well the model can work.
 
 ## Dependencies
 
 This project uses the following dependencies:
 
-- **Python:** 3.10.12
-- **Tensorflow:** 2.15.0
+- **Python:** 3.10.12/3.9.18 
+- **PyTorch:** 2.1.0+cu121/2.1.1+cpu
 - **Streamlit:** 1.28.2 
 
-- [Trained Classification model](https://www.dropbox.com/scl/fi/lnp23cdyo4eq0nckn2vtq/Detection_model?rlkey=ll5wy8fhw4mb9fopk83xdkbn0&dl=0)
-- [Trained Segmentation model](https://www.dropbox.com/scl/fi/cq1tescfxr1uvp8z8fb2g/Segmentation_model?rlkey=s81dvvzzdlj0q92kjxvno78vr&dl=0)
+- [SBB ticket parser model on Hugging Face](https://huggingface.co/KgModel/sbb_ticket_parser_LayoutLM)
   
 ## Contact
 
@@ -121,5 +112,7 @@ Feel free to reach out if you have any questions, suggestions, or feedback relat
 ## References
 [1]: UBIAI annotation tool: [UBIAI](https://app.ubiai.tools/Projects).
 [2]: Named Entity Recognition, Vijay Krishnan and Vignesh Ganapathy: [NER](http://cs229.stanford.edu/proj2005/KrishnanGanapathy-NamedEntityRecognition.pdf) 
+[3]: LayoutLM: Pre-training of Text and Layout for Document Image Understanding: [LayoutLM] (https://arxiv.org/abs/1912.13318)
+[4]: [Huggingface LayoutLM] (https://huggingface.co/docs/transformers/model_doc/layoutlm)
 
 
