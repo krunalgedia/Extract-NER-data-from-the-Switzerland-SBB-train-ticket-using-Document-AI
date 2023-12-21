@@ -1,15 +1,18 @@
 # SBB_TrainTicketParser
 
-Business Problem
+Business Problem:
+
 In the context of document processing, the manual extraction of relevant information from invoices poses a significant challenge, one that is poised to be automated in the near future. Presently, the verification of traveler and ticket details within invoices is conducted manually, particularly in larger firms dealing with a high volume of invoices on a daily basis. This manual parsing process demands considerable human resources, resulting in prolonged processing times and delays in reimbursement.
 
-Project Objective
+Project Objective:
+
 The primary objective of this project is to address the inefficiencies associated with manual invoice parsing. Focusing specifically on SBB train tickets, we aim to implement an automated system that extracts pertinent information from the uploaded PDF documents. By leveraging automation, we intend to streamline the verification process and alleviate the burden on human resources.
 
 Benefits
-- Efficiency Gains: Automation reduces manual effort, leading to a significant reduction in processing time.
-- Timely Reimbursement: Streamlining the verification process minimizes delays in reimbursement, enhancing overall financial efficiency.
-- Scalability: As the system is designed to handle a large volume of invoices, it scales seamlessly with the growing needs of larger firms.
+
+* Efficiency Gains: Automation reduces manual effort, leading to a significant reduction in processing time.
+* Timely Reimbursement: Streamlining the verification process minimizes delays in reimbursement, enhancing overall financial efficiency.
+* Scalability: As the system is designed to handle a large volume of invoices, it scales seamlessly with the growing needs of larger firms.
 
 Through the successful implementation of this project, we aim to contribute to the optimization of invoice processing workflows, ultimately fostering efficiency, accuracy, and timely reimbursement within larger organizations.
 
@@ -29,7 +32,6 @@ Through the successful implementation of this project, we aim to contribute to t
 
 ## Project Overview
 
-[Provide a brief overview of your project, including its purpose, goals, and any relevant context.]
 The goal of this project is to develop a real-time web application to
 Key Features
 * PDF Document Parsing: Automate the extraction of essential details from SBB train ticket PDFs.
@@ -37,8 +39,6 @@ Key Features
 
 
 ## Installation
-
-[Include instructions for installing any necessary dependencies or setting up the environment. You may want to provide code snippets or refer to a separate document for detailed installation steps.]
 
 ```bash
 # Example installation command
@@ -50,9 +50,10 @@ streamlit run app.py
 
 ## Data
 
-The data used consists of SBB train tickets for single and extension tickets. Training set consists of just 4 SBB train tickets. They are all in PDF form,
+The data used consists of SBB train tickets for single and extension tickets. The training set consists of just 4 SBB train tickets. All tickets are in PDF form.
 
 ## Workflow
+0. Prepare training data by annotation using the UBIAI tool [1]. This includes drawing bounding boxes and labeling in the BIOES tagging form.
 1. Importing data
 2. Observing data
 3. Loading data in appropriate form.
@@ -118,6 +119,7 @@ Feel free to reach out if you have any questions, suggestions, or feedback relat
 - **LinkedIn:** [Krunal Gedia](https://www.linkedin.com/in/krunal-gedia-00188899/)
 
 ## References
-[1]: Al-Dhabyani W, Gomaa M, Khaled H, Fahmy A. Dataset of breast ultrasound images. Data in Brief. 2020 Feb;28:104863. DOI: 10.1016/j.dib.2019.104863
+[1]: UBIAI annotation tool: [UBIAI](https://app.ubiai.tools/Projects).
+[2]: Named Entity Recognition, Vijay Krishnan and Vignesh Ganapathy: [NER](http://cs229.stanford.edu/proj2005/KrishnanGanapathy-NamedEntityRecognition.pdf) 
 
 
