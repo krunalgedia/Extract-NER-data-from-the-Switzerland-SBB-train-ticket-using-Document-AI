@@ -1,4 +1,4 @@
-# SBB_TrainTicketParser
+# Extract NER data from the Switzerland's SBB train ticket using Document AI
 
 Business Problem:
 
